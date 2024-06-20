@@ -1,0 +1,78 @@
+---
+title: "The Effect: Describing Variables"
+author: "Tanner Houston"
+format: pdf
+editor: visual
+---
+
+## Chapter 4: Describing Variables
+
+```{r}
+library(tidyverse)
+install.packages("modelsummary"); library(modelsummary)
+install.packages("causaldata")
+#??causaldata
+view(causaldata::Mroz)
+
+
+df <- causaldata::Mroz |>
+  filter(lfp == TRUE) |>
+  mutate(earn = exp(lwg))
+```
+
+#### 1. Draw a scatterplot
+
+```{r}
+ggplot(df, aes(x = inc, y = earn)) +
+  geom_point() +
+  # use a log scale for the axes
+  scale_x_log10() +
+  scale_y_log10()
+```
+
+#### 2. Conditional Mean by College Attendance
+
+```{r}
+df |>
+  group_by(wc) |>
+  summarize(earn = mean(earn))
+```
+
+#### 3. Conditional Mean by Bins
+
+```{r}
+df |>
+  # cut() cuts the variable into bins
+  mutate(inc_cut = cut(inc, 10)) |>
+  group_by(inc_cut) |>
+  summarize(earn = mean(earn),
+            count = n())
+```
+
+#### 4. Draw the LOESS and Linear Regression Curves
+
+```{r}
+#LOESS
+ggplot(df, aes(x = inc, y = earn)) +
+  geom_point() +
+  # geom smooth by default draws a LOESS
+  geom_smooth(se = FALSE) +
+  scale_x_log10() + scale_y_log10()
+
+#Linear regression method
+ggplot(df , aes(x = inc, y = earn)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  scale_x_log10() +
+  scale_y_log10()
+```
+
+#### 5. Run a Linear Regression
+
+```{r}
+modl1 <- lm(lwg~ log(inc), data = df)
+#with controls
+modl2 <- lm(lwg~ log(inc) + wc + k618, data = df)
+# make a table with the models
+msummary(list(modl1, modl2))
+```
