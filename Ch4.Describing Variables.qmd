@@ -7,10 +7,10 @@ editor: visual
 
 ## Chapter 4: Describing Variables
 
-```{r}
+```{r, warning=FALSE}
 library(tidyverse)
-install.packages("modelsummary"); library(modelsummary)
-install.packages("causaldata")
+library(modelsummary)
+library(causaldata)
 #??causaldata
 view(causaldata::Mroz)
 
